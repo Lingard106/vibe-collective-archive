@@ -1,0 +1,3 @@
+import{PolarAngleAxis,PolarGrid,PolarRadiusAxis,Radar,RadarChart,ResponsiveContainer}from'recharts';
+type Stat={name:string;value:number};
+export default function AbilityRadar({stats}:{stats:Stat[]}){return <div className="radar radar-overflow"><ResponsiveContainer><RadarChart data={stats} outerRadius="44%"><PolarGrid stroke="#ffffff45"/><PolarAngleAxis dataKey="name" tick={{fill:'#fff',fontSize:11}}/><PolarRadiusAxis domain={[0,100]} allowDataOverflow tick={false} axisLine={false}/><Radar dataKey="value" stroke="#ecd2a0" strokeWidth={2.5} fill="#ecd2a0" fillOpacity={.34}/></RadarChart></ResponsiveContainer></div>}
