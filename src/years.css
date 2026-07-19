@@ -10,3 +10,5 @@
 
 /* Desktop order: copy first, then avatars tucked against the thumbnail. */
 @media(min-width:901px){.editable-event-list article{display:flex;align-items:center;gap:18px;min-height:154px;padding:16px 28px}.editable-event-list article>span{flex:0 0 44px}.event-copy{flex:1 1 auto;min-width:420px}.event-copy h3,.event-copy p{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.event-people{flex:0 0 auto;margin-left:auto;min-width:0}.event-people>div{justify-content:flex-end;flex-wrap:nowrap}.event-image{flex:0 0 144px;margin-left:0}}
+
+.edit-mode-exit{position:fixed;z-index:60;right:max(18px,3vw);top:94px;display:flex;align-items:center;gap:7px;padding:10px 14px;border:1px solid rgba(228,201,147,.42);border-radius:999px;background:rgba(10,15,22,.72);color:#efd7a6;box-shadow:0 12px 32px rgba(0,0,0,.28);backdrop-filter:blur(16px);cursor:pointer;animation:event-edit-in .18s ease both}@media(max-width:650px){.edit-mode-exit{top:74px;right:10px;padding:9px 12px;font-size:12px}}
