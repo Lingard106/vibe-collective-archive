@@ -12,7 +12,7 @@ export const members:MemberProfile[]=[
  {id:'loong',englishName:'LOONG',nickname:'杰根李',aliases:['小美'],quote:'待填写',bed:'8',region:'北京',mbti:'忘了',avatar:'/media/member-09-loong-avatar.jpg',hero:'/media/member-09-loong-profile.png',stats:[{name:'行动力',value:20},{name:'默契',value:80},{name:'组织力',value:20},{name:'镜头感',value:5},{name:'运气',value:70},{name:'活跃',value:20}],buffs:['待填写'],debuffs:['待填写']},
  {id:'issac',englishName:'ISSAC',nickname:'魏端',aliases:['竹竿'],quote:'待填写',bed:'4',region:'北京',mbti:'ISTP',avatar:'/media/member-10-issac-avatar.jpg',hero:'/media/member-10-issac-profile.png',stats:[{name:'行动力',value:50},{name:'默契',value:80},{name:'组织力',value:10},{name:'镜头感',value:88},{name:'运气',value:88},{name:'活跃',value:88}],buffs:['待填写'],debuffs:['待填写']}
 ];
-export const photos=['/media/group-1.jpg','/media/group-2.jpg','/media/group-3.jpg','/media/group-4.jpg','/media/group-5.jpg'];
+export const photos=['/media/group-1.webp','/media/group-2.webp','/media/group-3.webp','/media/group-4.webp'];
 export const years=[2021,2022,2023,2024,2025,2026];
 export const events:Record<number,{date:string;title:string;place:string;members:number[]}[]>={
 2021:[{date:'09.01',title:'故事从这里开始',place:'待补充地点',members:[0,1,2,3,4,5,6,7,8,9]}],2022:[{date:'春',title:'2022 年共同活动',place:'待补充',members:[0,2,4,6]}],2023:[{date:'11.18',title:'镜头留下的一天',place:'共同记忆',members:[0,1,3,5,8]}],2024:[{date:'06.10',title:'夏日集合',place:'共同记忆',members:[0,1,2,3,4,5,6,7,8,9]},{date:'09.27',title:'秋日合照',place:'共同记忆',members:[0,2,4,6,8]}],2025:[{date:'08',title:'又一次全员出现',place:'共同记忆',members:[0,1,2,3,4,5,6,7,8,9]}],2026:[{date:'07.18',title:'共同图鉴开始制作',place:'线上',members:[0]}]};
