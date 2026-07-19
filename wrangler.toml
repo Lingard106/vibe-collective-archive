@@ -1,0 +1,11 @@
+"$schema" = "./node_modules/wrangler/config-schema.json"
+name = "c106-collective"
+pages_build_output_dir = "./dist"
+compatibility_date = "2026-07-19"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "c106-collective-db"
+database_id = "f17e7d0b-fe1f-45e5-839e-aa07539a58e0"
+preview_database_id = "DB"
+migrations_dir = "migrations"

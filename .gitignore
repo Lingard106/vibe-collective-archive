@@ -3,3 +3,5 @@ dist/
 dev.err.log
 dev.out.log
 *.tsbuildinfo
+.wrangler/
+.local-data/
