@@ -1,0 +1,5 @@
+node_modules/
+dist/
+dev.err.log
+dev.out.log
+*.tsbuildinfo
