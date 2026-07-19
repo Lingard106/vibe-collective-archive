@@ -9,7 +9,7 @@ export async function ensureEventsTable(db){await db.prepare(`CREATE TABLE IF NO
  image TEXT DEFAULT '',
  link TEXT DEFAULT '',
  created_at TEXT DEFAULT (datetime('now'))
-)`).run();await db.prepare('CREATE UNIQUE INDEX IF NOT EXISTS timeline_events_seed_key ON timeline_events(event_date,title)').run();const seeds=[
+)`).run();await db.prepare('CREATE UNIQUE INDEX IF NOT EXISTS timeline_events_seed_key ON timeline_events(event_date,title)').run();if(await db.prepare('SELECT id FROM timeline_events LIMIT 1').first())return;const seeds=[
  ['2021-09-01','故事从这里开始','待补充地点',['lingard','bayern','melon','cech','longteng','leng','eason-gavi','maldini','loong','issac']],
  ['2022-03-01','2022 年共同活动','待补充',['lingard','melon','longteng','eason-gavi']],
  ['2023-11-18','镜头留下的一天','共同记忆',['lingard','bayern','cech','leng','loong']],
