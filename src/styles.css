@@ -24,3 +24,9 @@
 .members-page{overflow-x:hidden;overflow-y:auto}.profile aside{overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(229,199,143,.4) transparent}.profile-lower{padding-bottom:28px}.profile-lower .radar{min-height:220px}.radar-overflow{padding:2px 8px 18px}
 @media(max-height:900px) and (min-width:651px){.members-page{padding-top:92px}.member-strip{height:72px;margin-bottom:10px;padding:7px}.member-strip button{height:56px}.member-strip img,.member-strip button>span{height:44px;width:52px}.profile{height:calc(100vh - 184px);min-height:520px}.profile aside{padding:22px 30px}.profile aside h2{font-size:clamp(40px,4vw,58px);margin:2px 0 8px}.profile-english{font-size:11px}.profile-aliases{font-size:14px}.profile blockquote{margin:14px 0;padding:11px 14px;line-height:1.5}.profile-metrics{margin:12px 0 14px;padding:12px 0}.profile-metrics strong{font-size:clamp(18px,1.6vw,24px)}.profile-lower{gap:12px;padding-bottom:24px}.profile-lower .radar{height:205px;min-height:205px}.effect-tags{margin-bottom:12px}}
 @media(max-width:650px){.members-page{overflow-y:auto}.profile{min-height:540px}.profile aside{padding-bottom:34px}.profile-lower{padding-bottom:30px}.profile-lower .radar{height:205px;min-height:205px}.radar-overflow{padding-bottom:22px}}
+
+/* Let the radar grow with the available viewport instead of staying undersized. */
+.profile-lower .radar{height:clamp(270px,32vh,340px);min-height:270px}.radar-overflow{padding:0 4px 16px}
+@media(max-height:900px) and (min-width:651px){.profile-lower .radar{height:clamp(250px,31vh,290px);min-height:250px}}
+@media(max-width:1050px){.profile-lower .radar{height:clamp(270px,34vh,330px)}}
+@media(max-width:650px){.profile-lower .radar{height:clamp(245px,33vh,290px);min-height:245px}.radar-overflow{padding-bottom:18px}}
