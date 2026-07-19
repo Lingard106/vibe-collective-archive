@@ -10,3 +10,8 @@
 
 @media(max-width:1180px){.guest-card-main{grid-template-columns:122px minmax(0,1fr);gap:16px}.guest-editor-avatar{width:122px;height:154px}.guest-card-copy h3{font-size:23px}}
 @media(max-width:620px){.guest-editor-card{min-height:320px}.guest-card-main{grid-template-columns:118px minmax(0,1fr);padding:16px}.guest-card-top{padding:16px 16px 0}.guest-editor-avatar{width:118px;height:146px}.guest-card-footer{padding:17px 16px}.guest-crop-backdrop{padding:4px}.guest-crop-dialog{padding:16px 6px}.guest-crop-actions button{flex:1}}
+
+/* Denser cards keep the portrait prominent while reducing vertical travel. */
+.guest-editor-card{min-height:302px}.guest-card-top{padding:13px 18px 0}.guest-card-main{grid-template-columns:124px minmax(0,1fr);gap:18px;padding:12px 18px 16px}.guest-editor-avatar{width:124px;height:150px}.guest-card-copy h3{margin:3px 0 9px;font-size:24px}.guest-card-copy>p{line-height:1.55}.guest-card-copy blockquote{margin:12px 0 0;padding:9px 11px;line-height:1.45}.guest-card-footer{min-height:62px;padding:12px 18px}.guest-card-footer .guest-tags span,.guest-static-tag{padding:6px 10px}
+@media(max-width:1180px){.guest-card-main{grid-template-columns:112px minmax(0,1fr)}.guest-editor-avatar{width:112px;height:138px}}
+@media(max-width:620px){.guest-editor-card{min-height:276px}.guest-card-main{grid-template-columns:104px minmax(0,1fr);gap:13px;padding:11px 14px 14px}.guest-card-top{padding:12px 14px 0}.guest-editor-avatar{width:104px;height:128px}.guest-card-copy h3{font-size:21px}.guest-card-copy blockquote{font-size:12px}.guest-card-footer{min-height:56px;padding:10px 14px}}
