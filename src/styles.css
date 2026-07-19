@@ -38,3 +38,6 @@
 .guests-editor-page .guest-editor-card{background:linear-gradient(145deg,rgba(29,37,48,.72),rgba(12,17,24,.55));border-color:rgba(255,255,255,.16);backdrop-filter:blur(18px)}.guests-editor-page .guest-card-footer{background:rgba(7,11,17,.2)}
 .messages{grid-template-columns:minmax(320px,.75fr) minmax(0,1.25fr)}.messages>div:first-child{padding:28px;background:rgba(10,15,22,.5);border:1px solid rgba(255,255,255,.14);border-radius:22px;backdrop-filter:blur(18px)}.messages .page-head{padding:0;background:transparent;border:0;box-shadow:none;backdrop-filter:none}.messages .danmaku{background:rgba(8,13,20,.42);border-color:rgba(255,255,255,.16);backdrop-filter:blur(10px)}
 @media(max-width:700px){.page:has(.year-tabs) .page-head,.page:has(.heart-table) .page-head,.guests-editor-page .guests-editor-head,.messages>div:first-child{padding:18px}.page:has(.year-tabs),.page:has(.heart-table),.page.center:has(.lock),.guests-editor-page,.messages{background-attachment:scroll}}
+
+/* Brighter background pass: preserve the night atmosphere without losing the group portrait. */
+.page:has(.year-tabs):before,.page:has(.heart-table):before,.page.center:has(.lock):before,.guests-editor-page:before,.messages:before{background:linear-gradient(180deg,rgba(4,7,12,.14),rgba(4,7,12,.4)),linear-gradient(90deg,rgba(2,5,9,.08),rgba(2,5,9,.25))}
