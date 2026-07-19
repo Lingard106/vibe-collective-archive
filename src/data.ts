@@ -16,4 +16,4 @@ export const photos=['/media/group-1.jpg','/media/group-2.jpg','/media/group-3.j
 export const years=[2021,2022,2023,2024,2025,2026];
 export const events:Record<number,{date:string;title:string;place:string;members:number[]}[]>={
 2021:[{date:'09.01',title:'故事从这里开始',place:'待补充地点',members:[0,1,2,3,4,5,6,7,8,9]}],2022:[{date:'春',title:'2022 年共同活动',place:'待补充',members:[0,2,4,6]}],2023:[{date:'11.18',title:'镜头留下的一天',place:'共同记忆',members:[0,1,3,5,8]}],2024:[{date:'06.10',title:'夏日集合',place:'共同记忆',members:[0,1,2,3,4,5,6,7,8,9]},{date:'09.27',title:'秋日合照',place:'共同记忆',members:[0,2,4,6,8]}],2025:[{date:'08',title:'又一次全员出现',place:'共同记忆',members:[0,1,2,3,4,5,6,7,8,9]}],2026:[{date:'07.18',title:'共同图鉴开始制作',place:'线上',members:[0]}]};
-export const guests=[{alias:'嘉宾 A',desc:'在某段旅程中短暂同行的人。'},{alias:'嘉宾 B',desc:'贡献过一个至今仍会被提起的瞬间。'},{alias:'嘉宾 C',desc:'与集体相遇过，但真实姓名保持隐藏。'}];
+export const guests:never[]=[];
