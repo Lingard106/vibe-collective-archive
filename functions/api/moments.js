@@ -1,0 +1,4 @@
+import{ensureMomentsTable,handleError,json,readMomentPayload}from'./_moments.js';
+const fields='id, title, image, created_at';
+export async function onRequestGet({env}){try{await ensureMomentsTable(env.DB);const result=await env.DB.prepare(`SELECT ${fields} FROM moments ORDER BY datetime(created_at) ASC, id ASC`).all();return json({moments:result.results||[]})}catch(error){return handleError(error)}}
+export async function onRequestPost({request,env}){try{await ensureMomentsTable(env.DB);const moment=await readMomentPayload(request);const result=await env.DB.prepare('INSERT INTO moments (title,image) VALUES (?,?)').bind(moment.title,moment.image).run();const saved=await env.DB.prepare(`SELECT ${fields} FROM moments WHERE id=?`).bind(result.meta?.last_row_id).first();return json({moment:saved},201)}catch(error){return handleError(error)}}

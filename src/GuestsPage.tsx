@@ -1,12 +1,12 @@
 import{useCallback,useEffect,useRef,useState}from'react';
 import{ImagePlus,LoaderCircle,Pencil,Plus,Quote,Trash2,X}from'lucide-react';
-import'./guests.css';
+void import('./guests.css');
 
 type Guest={id?:number;alias:string;desc:string;avatar?:string;tags?:string;quote?:string;created_at?:string};
 type GuestForm={alias:string;desc:string;avatar:string;tags:string;quote:string};
 type CropState={src:string;width:number;height:number;zoom:number;x:number;y:number};
 const EMPTY_FORM:GuestForm={alias:'',desc:'',avatar:'',tags:'',quote:''};
-const MAX_AVATAR_BYTES=80*1024;
+const MAX_AVATAR_BYTES=64*1024;
 const CROP_SIZE=300;
 
 function readAsDataUrl(blob:Blob){return new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result));reader.onerror=()=>reject(new Error('头像读取失败'));reader.readAsDataURL(blob)})}
@@ -14,9 +14,9 @@ function canvasBlob(canvas:HTMLCanvasElement,quality:number){return new Promise<
 function loadImageSource(src:string){return new Promise<HTMLImageElement>((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(new Error('无法识别这张图片'));image.src=src})}
 function cropLimits(crop:CropState,zoom=crop.zoom){const scale=Math.max(CROP_SIZE/crop.width,CROP_SIZE/crop.height)*zoom;return{x:Math.max(0,(crop.width*scale-CROP_SIZE)/2),y:Math.max(0,(crop.height*scale-CROP_SIZE)/2),scale}}
 async function cropAvatar(crop:CropState){
- const image=await loadImageSource(crop.src);const limits=cropLimits(crop);const sourceSize=CROP_SIZE/limits.scale;const sourceX=Math.max(0,Math.min(crop.width-sourceSize,(crop.width-sourceSize)/2-crop.x/limits.scale));const sourceY=Math.max(0,Math.min(crop.height-sourceSize,(crop.height-sourceSize)/2-crop.y/limits.scale));const canvas=document.createElement('canvas');const ctx=canvas.getContext('2d');if(!ctx)throw new Error('浏览器不支持图片裁切');const qualities=[.92,.86,.8,.74,.68,.6,.52,.44];
+ const image=await loadImageSource(crop.src);const limits=cropLimits(crop);const sourceSize=CROP_SIZE/limits.scale;const sourceX=Math.max(0,Math.min(crop.width-sourceSize,(crop.width-sourceSize)/2-crop.x/limits.scale));const sourceY=Math.max(0,Math.min(crop.height-sourceSize,(crop.height-sourceSize)/2-crop.y/limits.scale));const canvas=document.createElement('canvas');const ctx=canvas.getContext('2d');if(!ctx)throw new Error('浏览器不支持图片裁切');const qualities=[.9,.82,.74,.66,.58,.5,.42,.36];
  for(const outputSize of[400,360,320,280]){canvas.width=outputSize;canvas.height=outputSize;ctx.clearRect(0,0,outputSize,outputSize);ctx.drawImage(image,sourceX,sourceY,sourceSize,sourceSize,0,0,outputSize,outputSize);for(const quality of qualities){const blob=await canvasBlob(canvas,quality);if(blob.size<=MAX_AVATAR_BYTES)return readAsDataUrl(blob)}}
- throw new Error('图片内容过于复杂，压缩后仍超过 80KB，请换一张图片');
+ throw new Error('图片内容过于复杂，压缩后仍超过 64KB，请换一张图片');
 }
 
 export default function GuestsPage({staticGuests}:{staticGuests:{alias:string;desc:string}[]}){
@@ -46,7 +46,7 @@ export default function GuestsPage({staticGuests}:{staticGuests:{alias:string;de
    <label><span>描述</span><textarea maxLength={2000} rows={4} value={form.desc} onChange={event=>setForm({...form,desc:event.target.value})} placeholder="记录与这位嘉宾相遇的故事"/></label>
    <label><span>Tag</span><input maxLength={500} value={form.tags} onChange={event=>setForm({...form,tags:event.target.value})} placeholder="朋友, 旅途, 2026（逗号分隔）"/></label>
    <label><span>名言</span><input maxLength={500} value={form.quote} onChange={event=>setForm({...form,quote:event.target.value})} placeholder="留下一句代表性的话"/></label>
-   <label className="guest-avatar-field"><span>头像</span><div className="guest-avatar-input">{form.avatar?<img src={form.avatar} alt="头像预览"/>:<ImagePlus size={28}/>}<div><b>{imageBusy?'正在处理…':form.avatar?'更换头像':'选择并裁切头像'}</b><small>裁切后自动转为 WebP，最大 400×400、80KB</small></div><input type="file" accept="image/*" disabled={imageBusy||saving} onChange={event=>{const file=event.currentTarget.files?.[0];event.currentTarget.value='';void chooseAvatar(file)}}/></div>{form.avatar&&<button type="button" className="guest-remove-avatar" onClick={()=>setForm({...form,avatar:''})}>移除头像</button>}</label>
+   <label className="guest-avatar-field"><span>头像</span><div className="guest-avatar-input">{form.avatar?<img src={form.avatar} alt="头像预览"/>:<ImagePlus size={28}/>}<div><b>{imageBusy?'正在处理…':form.avatar?'更换头像':'选择并裁切头像'}</b><small>裁切后自动转为 WebP，最大 400×400、64KB</small></div><input type="file" accept="image/*" disabled={imageBusy||saving} onChange={event=>{const file=event.currentTarget.files?.[0];event.currentTarget.value='';void chooseAvatar(file)}}/></div>{form.avatar&&<button type="button" className="guest-remove-avatar" onClick={()=>setForm({...form,avatar:''})}>移除头像</button>}</label>
    {notice&&<p className="guest-form-error" role="alert">{notice}</p>}
    <div className="guest-form-actions">{editing&&<button type="button" className="guest-delete" onClick={removeGuest} disabled={saving}><Trash2 size={16}/>删除</button>}<span/><button type="button" className="guest-cancel" onClick={()=>setModalOpen(false)} disabled={saving}>取消</button><button className="guest-save" disabled={saving||imageBusy||!form.alias.trim()}>{saving?<><LoaderCircle className="spin" size={17}/>保存中…</>:editing?'保存修改':'添加嘉宾'}</button></div>
   </form></div></div>}
