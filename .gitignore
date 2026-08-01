@@ -5,3 +5,4 @@ dev.out.log
 *.tsbuildinfo
 .wrangler/
 .local-data/
+.env.admin.local

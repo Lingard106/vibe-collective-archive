@@ -1,0 +1,3 @@
+import{adminAuthorized,ApiError,ensureMemberTables,handleError,json}from'../_members.js';
+export async function onRequestGet({request,env}){try{if(!await adminAuthorized(request,env))throw new ApiError('管理员凭证无效',401);await ensureMemberTables(env.DB);const [profiles,credentials]=await Promise.all([env.DB.prepare('SELECT * FROM member_profiles ORDER BY member_id').all(),env.DB.prepare('SELECT member_id,updated_at,locked_until FROM member_credentials ORDER BY member_id').all()]);return json({profiles:profiles.results||[],credentials:credentials.results||[]})}catch(error){return handleError(error)}}
+
