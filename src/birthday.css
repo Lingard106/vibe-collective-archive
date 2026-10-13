@@ -1,0 +1,78 @@
+/* C106 birthday cue — 生日当天全屏庆祝层 + 常驻角标（配色沿用网站香槟金 / 黄绿点缀） */
+
+/* 常驻角标：导航 logo 上的小蛋糕 */
+.bday-badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;font-size:14px;line-height:1;filter:drop-shadow(0 0 7px rgba(229,199,143,.65));animation:bday-cake 2.6s ease-in-out infinite}
+@keyframes bday-cake{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-3px) rotate(5deg)}}
+
+/* 常驻顶部横条 */
+.bday-strip{position:fixed;z-index:49;top:92px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:9px;max-width:calc(100% - 40px);padding:7px 18px;border-radius:6px;color:#ffe400;font-size:12px;font-weight:800;letter-spacing:.03em;line-height:1.2;text-align:center;background:#c00;border:3px solid #ffd700;box-shadow:0 5px 0 #7a0000,0 14px 32px rgba(0,0,0,.36);text-shadow:1px 1px 0 #7a0000}
+.bday-strip em{font-style:normal;color:#fff;text-shadow:0 0 9px #ff0}
+.bday-strip i{flex:0 0 auto;width:4px;height:4px;border-radius:50%;background:#ffd700}
+@media(max-width:650px){.bday-strip{top:74px;font-size:11px;padding:7px 14px;gap:7px}}
+
+/* 全屏庆祝层 */
+.bday-overlay{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 50% 38%,rgba(30,34,24,.5),transparent 58%),linear-gradient(180deg,rgba(4,6,11,.9),rgba(2,4,8,.965));backdrop-filter:blur(22px) saturate(112%);-webkit-backdrop-filter:blur(22px) saturate(112%);overflow:hidden}
+.bday-glow{position:absolute;width:min(760px,130vw);height:min(760px,130vw);border-radius:50%;background:radial-gradient(circle,rgba(229,199,143,.3),transparent 62%);filter:blur(6px);animation:bday-pulse 4.2s ease-in-out infinite;pointer-events:none}
+@keyframes bday-pulse{0%,100%{transform:scale(1);opacity:.82}50%{transform:scale(1.09);opacity:1}}
+
+.bday-card{position:relative;z-index:2;width:min(440px,92vw);padding:40px 34px 34px;text-align:center;border-radius:26px;color:#f6f1e7;background:linear-gradient(160deg,rgba(30,34,27,.96),rgba(9,12,18,.985));border:1px solid rgba(229,199,143,.5);box-shadow:0 40px 120px rgba(4,8,14,.7),0 0 90px rgba(229,199,143,.13),inset 0 1px 0 rgba(255,255,255,.16);backdrop-filter:blur(24px) saturate(150%);-webkit-backdrop-filter:blur(24px) saturate(150%)}
+.bday-kicker{font-size:11px;letter-spacing:.34em;font-weight:700;color:#e5c78f}
+.bday-avatar{width:140px;height:140px;margin:22px auto 20px;border-radius:50%;padding:4px;background:conic-gradient(from 0deg,#e5c78f,#c9ff55,#e5c78f);box-shadow:0 0 62px rgba(229,199,143,.58)}
+.bday-avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;border:3px solid #0c1017}
+.bday-card h2{margin:6px 0 3px;font-family:var(--display-cn);font-size:60px;line-height:1.05;letter-spacing:.03em}
+.bday-en{margin:0 0 16px;font-size:12px;letter-spacing:.3em;color:rgba(246,241,231,.6)}
+.bday-wish{margin:0 0 15px;font-size:14px;line-height:1.75;color:rgba(246,241,231,.88)}
+.bday-quote{display:inline-block;padding:7px 16px;border-radius:999px;font-size:13px;font-weight:700;color:#0c1017;background:#c9ff55}
+.bday-music{margin-top:22px;display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:999px;cursor:pointer;border:1px solid rgba(229,199,143,.5);background:rgba(229,199,143,.14);color:#f4ead6;font-size:13px;font-weight:600;transition:.2s}
+.bday-music:hover{background:rgba(229,199,143,.27)}
+.bday-close{position:absolute;top:calc(24px + env(safe-area-inset-top));right:24px;z-index:3;padding:9px 17px;border-radius:999px;border:1px solid rgba(255,255,255,.3);background:rgba(12,17,24,.5);color:#fff;font-size:12px;font-weight:600;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.bday-close:hover{background:rgba(12,17,24,.72)}
+
+.bday-confetti{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none}
+.bday-confetti span{position:absolute;top:-14vh;border-radius:2px;opacity:.92;animation-name:bday-fall;animation-timing-function:linear;animation-iteration-count:infinite}
+@keyframes bday-fall{0%{transform:translateY(-14vh) rotate(0deg)}100%{transform:translateY(116vh) rotate(720deg)}}
+
+/* 蛋糕雨：两层，背景层在卡片后，前景层在卡片前，做出景深。 */
+.bday-cakerain{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none}
+.bday-cakerain.front{z-index:3}
+.bday-cakerain span{position:absolute;top:-18vh;line-height:1;will-change:transform;animation-name:cake-fall;animation-timing-function:cubic-bezier(.35,.05,.6,.95);animation-iteration-count:infinite;filter:drop-shadow(0 8px 12px rgba(0,0,0,.4))}
+.bday-cakerain.front span{filter:drop-shadow(0 12px 18px rgba(0,0,0,.5))}
+@keyframes cake-fall{0%{transform:translate3d(0,-18vh,0) rotate(0deg);opacity:0}10%{opacity:1}86%{opacity:1}100%{transform:translate3d(var(--sway,0),118vh,0) rotate(var(--rot,360deg));opacity:.72}}
+
+/* 土味粗糙版：旋转金射线 + 立体描边大字 + 跑马灯 + 满屏 emoji + 大蛋糕 */
+.bday-overlay.tacky{background:radial-gradient(circle at 50% 45%,#ff3b30,#d10000 58%,#7d0000);backdrop-filter:none;-webkit-backdrop-filter:none}
+.tq-rays{position:absolute;inset:-40%;z-index:0;background:repeating-conic-gradient(from 0deg,rgba(255,215,0,.22) 0deg 7deg,transparent 7deg 14deg);animation:tq-spin 22s linear infinite;pointer-events:none}
+@keyframes tq-spin{to{transform:rotate(360deg)}}
+.tq-title{position:absolute;top:clamp(44px,5.5vh,86px);left:50%;z-index:3;font-family:'Microsoft YaHei','SimHei',var(--display-cn),sans-serif;font-weight:900;font-size:clamp(44px,9vw,118px);line-height:1;color:#ffe400;-webkit-text-stroke:3px #c00;text-shadow:0 7px 0 #c00,0 0 28px rgba(255,230,0,.75),7px 7px 0 rgba(120,0,0,.7);letter-spacing:.04em;pointer-events:none;animation:tq-wobble 1.3s ease-in-out infinite}
+@keyframes tq-wobble{0%,100%{transform:translateX(-50%) rotate(-3deg) scale(1)}50%{transform:translateX(-50%) rotate(3deg) scale(1.06)}}
+.bday-bigcakes{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none}
+.bday-bigcakes span{position:absolute;line-height:1;filter:drop-shadow(0 16px 30px rgba(0,0,0,.5))}
+.bday-bigcakes .bc1{left:2%;bottom:8%;font-size:clamp(74px,11vw,154px);animation:bday-bob 5s ease-in-out infinite}
+.bday-bigcakes .bc2{right:3%;bottom:12%;font-size:clamp(64px,9.5vw,132px);animation:bday-bob 6.4s ease-in-out infinite reverse}
+.bday-bigcakes .bc3{left:6%;top:16%;font-size:clamp(48px,7vw,96px);animation:bday-bob 5.6s ease-in-out infinite reverse}
+.bday-bigcakes .bc4{right:6%;top:20%;font-size:clamp(52px,7.6vw,104px);animation:bday-bob 6s ease-in-out infinite}
+@keyframes bday-bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-16px) rotate(4deg)}}
+.tq-emojis{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none}
+.tq-emojis span{position:absolute;bottom:-16vh;line-height:1;will-change:transform;animation-name:tq-rise;animation-timing-function:ease-out;animation-iteration-count:infinite;filter:drop-shadow(0 6px 10px rgba(0,0,0,.3))}
+@keyframes tq-rise{0%{transform:translateY(0) rotate(0);opacity:0}12%{opacity:1}88%{opacity:1}100%{transform:translate(var(--drift,0),-120vh) rotate(540deg);opacity:.75}}
+.tq-marquee{position:absolute;left:0;right:0;z-index:4;height:40px;line-height:36px;overflow:hidden;background:#c00;color:#ffe400;font-weight:800;font-size:15px;letter-spacing:.05em;white-space:nowrap;border-block:3px solid #ffd700;text-shadow:1px 1px 0 #7a0000}
+.tq-marquee-top{top:0}
+.tq-marquee-bottom{bottom:0}
+.tq-marquee span{display:inline-block;padding-left:100%;animation:tq-scroll 14s linear infinite}
+@keyframes tq-scroll{to{transform:translateX(-100%)}}
+
+/* 土味卡片：大红大金喜报风 */
+.bday-card.tacky{background:linear-gradient(180deg,#fff6cf,#ffd86b);border:6px double #c00;border-radius:10px;color:#b00000;box-shadow:0 0 0 4px #ffe400,0 0 0 9px #c00,0 22px 55px rgba(0,0,0,.55);backdrop-filter:none;-webkit-backdrop-filter:none}
+.bday-card.tacky .bday-kicker{color:#c00;font-weight:900}
+.bday-card.tacky .bday-avatar{padding:3px;background:#ffe400;box-shadow:0 0 0 3px #c00,0 0 26px rgba(255,120,0,.6)}
+.bday-card.tacky .bday-avatar img{border:3px solid #c00}
+.bday-card.tacky h2{color:#e00000;-webkit-text-stroke:1.5px #7a0000;text-shadow:2px 2px 0 #ffe400,4px 4px 0 rgba(150,0,0,.35)}
+.bday-card.tacky .bday-en{color:#a53b00;letter-spacing:.24em}
+.bday-card.tacky .bday-wish{color:#8a2b00;font-weight:600}
+.bday-card.tacky .bday-quote{background:#e00000;color:#ffe400;border:2px solid #7a0000;font-weight:900;transform:rotate(-2deg)}
+.bday-card.tacky .bday-music{border:2px solid #c00;background:#ffe400;color:#b00000;font-weight:800}
+.bday-card.tacky .bday-music:hover{background:#ffef9e}
+.bday-close{font-weight:800}
+
+@media(prefers-reduced-motion:reduce){.bday-badge,.bday-glow,.bday-confetti span,.bday-cakerain span,.bday-bigcakes span,.tq-rays,.tq-title,.tq-emojis span,.tq-marquee span{animation:none}}
+@media(max-width:650px){.bday-card{padding:32px 22px 28px}.bday-card h2{font-size:46px}.bday-avatar{width:118px;height:118px}.bday-wish{font-size:13px}}
