@@ -1,0 +1,9 @@
+/* One owner for image transitions. No blur or resampling is applied. */
+.hero-bg img.image-crossfade,.members-page .member-page-bg.image-crossfade{opacity:1;animation:none;filter:none;transition:none;transform:scale(1.01);will-change:auto}
+.hero-bg img.image-crossfade-new,.members-page .member-page-bg.image-crossfade-new{animation:photo-crossfade .5s ease both}
+.hero-bg img.image-crossfade-old,.members-page .member-page-bg.image-crossfade-old{animation:none}
+@keyframes photo-crossfade{from{opacity:0}to{opacity:1}}
+.image-retry{position:relative;z-index:8;display:flex;align-items:center;gap:10px;width:fit-content;max-width:100%;margin:8px auto;padding:9px 14px;border:1px solid #e5c78f50;border-radius:12px;background:#0c111de8;color:#e5d5b9;font-size:12px}
+.image-retry button{border:1px solid #e5c78f70;border-radius:8px;padding:6px 10px;background:transparent;color:#f0d9af;cursor:pointer;white-space:nowrap}
+.overview .image-retry{position:absolute;bottom:90px;left:50%;transform:translateX(-50%)}
+@media(prefers-reduced-motion:reduce){.hero-bg img.image-crossfade-new,.members-page .member-page-bg.image-crossfade-new{animation:none}}

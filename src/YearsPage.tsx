@@ -1,7 +1,7 @@
 import{useCallback,useEffect,useMemo,useState}from'react';
 import{ExternalLink,ImagePlus,LoaderCircle,Pencil,Plus,Trash2,X}from'lucide-react';
 import{members}from'./data';
-void import('./years.css');
+import './years.css';
 
 type TimelineEvent={id:number;event_date:string;title:string;place:string;participant_ids:string|string[];image:string;link:string;created_at?:string};
 type EventForm={event_date:string;title:string;place:string;participant_ids:string[];image:string;link:string};

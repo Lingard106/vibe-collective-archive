@@ -1,6 +1,6 @@
 import{useCallback,useEffect,useMemo,useState}from'react';
 import{Heart,LoaderCircle,LockKeyhole}from'lucide-react';
-void import('./hearts.css');
+import './hearts.css';
 
 type Member={id:string;nickname:string;avatar?:string};type HeartRecord={member_id:string;period:string;status:string};
 const OPTIONS=[['unknown','❔','未知'],['single','💚','单身'],['dating','💞','恋爱'],['crush','🌱','暧昧'],['breakup','💔','分手'],['private','🌫️','保密']]as const;

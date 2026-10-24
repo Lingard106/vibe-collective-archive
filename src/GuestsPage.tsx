@@ -1,6 +1,6 @@
 import{useCallback,useEffect,useRef,useState}from'react';
 import{ImagePlus,LoaderCircle,Pencil,Plus,Quote,Trash2,X}from'lucide-react';
-void import('./guests.css');
+import './guests.css';
 
 type Guest={id?:number;alias:string;desc:string;avatar?:string;tags?:string;quote?:string;created_at?:string};
 type GuestForm={alias:string;desc:string;avatar:string;tags:string;quote:string};
