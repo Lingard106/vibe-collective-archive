@@ -23,4 +23,14 @@
 
 ## Deployment authorization
 
-The user explicitly selected “完成检查后直接上线”. Direct Cloudflare deployment is authorized; this does not authorize consuming/resetting the real gift. Cloudflare CLI currently requires renewed sign-in.
+The user explicitly selected “完成检查后直接上线”. Direct Cloudflare deployment is authorized; this does not authorize consuming/resetting the real gift.
+
+## Deployed
+
+- Cloudflare sign-in completed using Wrangler 4.152.0 device authorization and the computer's existing proxy. The expected `c106-collective` project and database ID were found in the signed-in account.
+- Executed only `migrations/0002_create_gift_claims.sql` against the verified existing D1 database. No existing rows were modified or deleted.
+- Released application commit `aa4b614` to production branch `master` with a direct Pages deployment. Production: https://c106-collective.pages.dev/ ; immutable deployment: https://ba8d8305.c106-collective.pages.dev/ . No Git push was performed.
+- Production homepage returned HTTP 200 and references `assets/index-DSTN_jVw.js`. Gift API returned 200 / available. Members, guests, events, moments and messages APIs returned valid JSON; protected hearts and administrator gift endpoints correctly returned 401 without credentials.
+- Independent read-only release review checked the homepage and 21 resources. Gift JS/CSS/WebP returned the right types. All 17 existing background/photograph resources checked returned 200 / image/webp.
+- The local administrator's authenticated gift proxy returned 200 / no claim. No production POST/PUT/DELETE was sent during release validation; the real gift remains unclaimed at this check.
+- Browser visual/touch verification remains unavailable as noted above; no claim of screenshot parity is made.
