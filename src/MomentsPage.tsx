@@ -1,9 +1,7 @@
 import{useCallback,useEffect,useMemo,useState}from'react';
-import{ImagePlus,LoaderCircle,Pause,Pencil,Play,Plus,Trash2,X}from'lucide-react';
+import{ImagePlus,LoaderCircle,Pencil,Plus,Trash2,X}from'lucide-react';
 import './moments.css';
-import FilmReel from './film/FilmReel';
-import PhotoViewer from './film/PhotoViewer';
-import './film/film-interaction.css';
+import PhotoWall from './photo-wall/PhotoWall';
 
 type Moment={id?:number;title:string;image:string;created_at?:string};
 const MAX_IMAGE_BYTES=160*1024;
@@ -18,19 +16,17 @@ async function optimizeImage(file:File){
 }
 
 export default function MomentsPage({staticPhotos}:{staticPhotos:string[]}){
- const[paused,setPaused]=useState(false);const[viewing,setViewing]=useState<number|null>(null);
  const[apiMoments,setApiMoments]=useState<Moment[]>([]);const[loading,setLoading]=useState(true);const[notice,setNotice]=useState('');const[editMode,setEditMode]=useState(false);const[modal,setModal]=useState(false);const[editing,setEditing]=useState<Moment|null>(null);const[form,setForm]=useState(EMPTY);const[saving,setSaving]=useState(false);const[imageBusy,setImageBusy]=useState(false);
  const load=useCallback(async()=>{try{const response=await fetch('/api/moments',{headers:{Accept:'application/json'},signal:AbortSignal.timeout(15000)});const data=await response.json()as{moments?:Moment[],error?:string};if(!response.ok)throw new Error(data.error||'照片加载失败');setApiMoments(data.moments||[]);setNotice('')}catch(error){setNotice(error instanceof Error?error.message:'照片加载失败')}finally{setLoading(false)}},[]);
  useEffect(()=>{void load()},[load]);useEffect(()=>{if(!editMode)return;const exit=(event:KeyboardEvent)=>{if(event.key==='Escape'&&!modal)setEditMode(false)};window.addEventListener('keydown',exit);return()=>window.removeEventListener('keydown',exit)},[editMode,modal]);
  const moments=useMemo<Moment[]>(()=>[...staticPhotos.map((image,index)=>({title:`场景${String(index+1).padStart(2,'0')}`,image})),...apiMoments],[apiMoments,staticPhotos]);
+ const wallPhotos=useMemo(()=>moments.map((moment,index)=>({...moment,key:moment.id?`uploaded-${moment.id}`:`static-${index}`})),[moments]);
  const openAdd=()=>{setEditing(null);setForm(EMPTY);setNotice('');setModal(true)};const openEdit=(moment:Moment)=>{setEditing(moment);setForm({title:moment.title,image:moment.image});setNotice('');setModal(true)};
  const chooseImage=async(file?:File)=>{if(!file)return;setImageBusy(true);setNotice('');try{const image=await optimizeImage(file);setForm(current=>({...current,image}))}catch(error){setNotice(error instanceof Error?error.message:'照片处理失败')}finally{setImageBusy(false)}};
  const submit=async(event:React.FormEvent)=>{event.preventDefault();if([...form.title.trim()].length>7){setNotice('小标题不能超过 7 个字');return}setSaving(true);setNotice('');try{const response=await fetch(editing?.id?`/api/moments/${editing.id}`:'/api/moments',{method:editing?.id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(form)});const data=await response.json()as{error?:string};if(!response.ok)throw new Error(data.error||'保存失败');setModal(false);await load()}catch(error){setNotice(error instanceof Error?error.message:'保存失败')}finally{setSaving(false)}};
  const remove=async()=>{if(!editing?.id||!confirm('确定删除这张照片吗？'))return;setSaving(true);try{const response=await fetch(`/api/moments/${editing.id}`,{method:'DELETE'});const data=await response.json()as{error?:string};if(!response.ok)throw new Error(data.error||'删除失败');setModal(false);await load()}catch(error){setNotice(error instanceof Error?error.message:'删除失败')}finally{setSaving(false)}};
- return <section className="page moments-page"><header className="moments-head"><div><p className="kicker">ICONIC MOMENTS</p><h1>名场面</h1><p>三卷持续转动的记忆胶片，把共同经历留在每一格画面里。</p></div><img className="moments-lineup" src="/media/moments-lineup.webp" alt="十位成员的 Minecraft 人物合影" decoding="async"/><div className="moments-tools"><button aria-pressed={paused} onClick={()=>setPaused(value=>!value)}>{paused?<Play size={16}/>:<Pause size={16}/>} {paused?'继续滚动':'暂停胶卷'}</button><button className={editMode?'active':''} onClick={()=>setEditMode(value=>!value)}><Pencil size={16}/>{editMode?'退出编辑':'编辑模式'}</button>{editMode&&<button className="moment-add" onClick={openAdd}><Plus size={17}/>添加照片</button>}</div></header>{notice&&<p className="moments-notice">{notice}</p>}{loading&&<p className="film-load-status" role="status">正在补充上传的照片…</p>}
- <div className="film-reels">{moments.length?[0,1,2].map(row=><FilmReel key={row} row={row} photos={moments} paused={paused||modal||viewing!==null} editable={editMode} onView={setViewing} onEdit={openEdit}/>):<p className="moments-loading">这里还没有照片，进入编辑模式添加第一张。</p>}</div>
- {viewing!==null&&moments[viewing]&&<PhotoViewer photo={moments[viewing]} index={viewing} count={moments.length} onClose={()=>setViewing(null)} onMove={direction=>setViewing(index=>index===null?null:(index+direction+moments.length)%moments.length)}/>}
+ return <><PhotoWall production photos={wallPhotos} editMode={editMode} blocked={modal} notice={notice} loading={loading} onAdd={openAdd} onEdit={openEdit} headerControls={<><button className={editMode?'active':''} onClick={()=>setEditMode(value=>!value)}><Pencil size={14}/>{editMode?'退出编辑':'编辑模式'}</button>{editMode&&<button onClick={openAdd}><Plus size={15}/>添加照片</button>}</>}/>
 
  {modal&&<div className="moment-modal-backdrop" onMouseDown={event=>{if(event.target===event.currentTarget&&!saving)setModal(false)}}><div className="moment-modal" role="dialog" aria-modal="true"><header><div><p className="kicker">FILM FRAME</p><h2>{editing?'编辑照片':'添加照片'}</h2></div><button onClick={()=>setModal(false)} aria-label="关闭"><X/></button></header><form onSubmit={submit}><label><span>小标题（不超过 7 个字）</span><input required maxLength={7} value={form.title} onChange={event=>setForm({...form,title:event.target.value})} placeholder="例如：夏日集合"/></label><label><span>照片</span><div className="moment-image-input">{form.image?<img src={form.image} alt="预览"/>:<ImagePlus size={30}/>}<div><b>{imageBusy?'正在处理…':form.image?'更换照片':'选择照片'}</b><small>自动裁切为 16:9 WebP，最大 160KB</small></div><input type="file" accept="image/*" disabled={imageBusy||saving} onChange={event=>{const file=event.currentTarget.files?.[0];event.currentTarget.value='';void chooseImage(file)}}/></div></label>{notice&&<p className="moment-form-error">{notice}</p>}<div className="moment-actions">{editing&&<button type="button" className="moment-delete" onClick={()=>void remove()} disabled={saving}><Trash2 size={15}/>删除</button>}<span/><button type="button" onClick={()=>setModal(false)} disabled={saving}>取消</button><button className="moment-save" disabled={saving||imageBusy||!form.image}>{saving?<LoaderCircle className="spin" size={16}/>:null}保存</button></div></form></div></div>}
- </section>;
+ </>;
 }
