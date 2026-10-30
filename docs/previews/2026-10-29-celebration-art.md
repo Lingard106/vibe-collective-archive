@@ -1,0 +1,11 @@
+# Celebration artwork provenance
+
+Method: built-in imagegen tool, transparent background, one identity-preserving edit.
+
+Input/edit target: `src/world-preview/assets/lingard-portrait-master-v1.png`.
+
+Saved project asset: `src/world-preview/assets/lingard-celebration-v1.png` (1254 × 1254, 877,292 bytes). Original output retained under the Codex generated-images directory. Original background/standing assets were not overwritten. The PNG is consumed directly, without lossy recompression.
+
+## Full prompt
+
+Use case: identity-preserve. Asset type: transparent full-body animation key pose for an existing website character. Image 1 is the edit target and exact identity/proportions/material/lighting reference. Create a SINGLE full-body version of exactly this Minecraft voxel young man doing a graceful Jude Bellingham-style arms-wide celebration, 双臂舒展举向斜上方: both arms spread outward and approximately 20 degrees above the horizontal, a broad shallow V, not vertical and not a stiff T pose. Shoulders are relaxed and anatomically connected to the shirt, elbows softly extended, both hands naturally OPEN with palms angled forward/upward, not clenched fists. Torso and hips stay upright, feet planted apart in the SAME neutral stance as the reference. Chin raised only slightly, same friendly subtle smile and black glasses. The arms have matching anatomical length and width, correct three-quarter perspective: the near arm may be slightly larger, never oversized; neither arm reaches toward camera. Preserve precisely the reference's large voxel hair, head-to-body ratio, shirt number 7, white puma logo, Portuguese crest, green collar/cuffs, cargo trousers and gray-white trainers. Do NOT change face, hairstyle, body size, garments or light direction. Maintain the same mild three-quarter camera angle facing viewer-right, no turn of torso or change of perspective. Whole character including both hands and all shoes visible with generous transparent margins left/right; square canvas is ideal so outstretched arms are not clipped. Genuinely transparent alpha background, no glow, no ground, no environment, no text, no action lines, no multiple panels. This is a coherent connected character pose, not separate cutout limbs. Preserve crisp detailed voxel geometry and avoid distortion.

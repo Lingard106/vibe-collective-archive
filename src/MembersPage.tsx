@@ -1,10 +1,12 @@
-import{Suspense,useEffect,useMemo,useState}from'react';
+import{lazy,Suspense,useContext,useEffect,useMemo,useState}from'react';
 import{BedDouble,Brain,ChevronLeft,ChevronRight,LoaderCircle,LockKeyhole,MapPin,Pencil,Save,X}from'lucide-react';
 import type{MemberProfile}from'./data';
 import AbilityRadar from'./AbilityRadar';
 import'./members-editor.css';
 import CrossfadeImage from './media/CrossfadeImage';
 import {prepareImage, profileImageSrc} from './media/image-loader';
+import {MemberArtworkContext} from './MemberArtworkContext';
+const AnimatedPortrait=lazy(()=>import('./world-preview/ImagePortraitStage'));
 
 type DbProfile={member_id:string;nickname:string;english_name:string;aliases:string;avatar:string;quote:string;bed:string;region:string;mbti:string;buffs:string;debuffs:string;stats:string};
 type EditableMember=Omit<MemberProfile,'hero'>;
@@ -22,6 +24,7 @@ function MemberEditor({member,onClose,onSaved}:{member:MemberProfile;onClose:()=
 
 
 export default function MembersPage({staticMembers}:{staticMembers:MemberProfile[]}) {
+ const renderArtwork=useContext(MemberArtworkContext);
  const [rows,setRows]=useState<DbProfile[]>([]);
  const [active,setActive]=useState(0);
  const [visibleActive,setVisibleActive]=useState(0);
@@ -33,6 +36,10 @@ export default function MembersPage({staticMembers}:{staticMembers:MemberProfile
  useEffect(()=>{const controller=new AbortController();fetch('/api/members',{signal:controller.signal}).then(r=>r.ok?r.json():Promise.reject()).then(data=>setRows(data.profiles||[])).catch(()=>{});return()=>controller.abort()},[]);
  const members=useMemo(()=>staticMembers.map(member=>mergeMember(member,rows.find(row=>row.member_id===member.id))),[staticMembers,rows]);
  const m=members[visibleActive];
+ const portrait=(surface:'background'|'cover')=>{
+  const fallback=surface==='background'?<CrossfadeImage className="member-page-bg" src={profileImageSrc(m.hero)} style={{width:'100%',height:'100%',objectFit:'cover'}}/>:<Img className="mobile-profile-cover" src={m.hero} loading="eager" alt=""/>;
+  return renderArtwork?.(m,surface)??(m.id==='lingard'?<Suspense fallback={fallback}><AnimatedPortrait key={m.id+'-'+surface} src={profileImageSrc(m.hero)} surface={surface}/></Suspense>:fallback);
+ };
  const target=members[active];
  useEffect(()=>{
   let current=true;
@@ -43,7 +50,7 @@ export default function MembersPage({staticMembers}:{staticMembers:MemberProfile
   return()=>{current=false};
  },[active,target.hero,retry]);
  return <section className={`page members-page${switching?' member-switching':''}`}>
-  <CrossfadeImage className="member-page-bg" src={profileImageSrc(m.hero)} style={{width:'100%',height:'100%',objectFit:'cover'}}/>
+  {portrait('background')}
   <div className="member-page-shade"/>
   <div className="member-strip">{members.map((member,index)=><button
    className={index===active?'active':''} aria-pressed={index===active} key={member.id}
@@ -58,7 +65,7 @@ export default function MembersPage({staticMembers}:{staticMembers:MemberProfile
    <div className="profile-watermark">{m.englishName}</div>
    <button className="collapse" aria-label={collapsed?'展开人物资料':'收起人物资料'} onClick={()=>setCollapsed(!collapsed)}>{collapsed?<ChevronLeft/>:<ChevronRight/>}</button>
    <aside key={m.id} className={collapsed?'collapsed':''}>
-    <Img className="mobile-profile-cover" src={m.hero} loading="eager" alt=""/>
+    {portrait('cover')}
     <p className="profile-english">{m.englishName}</p><h2>{m.nickname}</h2><p className="profile-aliases">{m.aliases.join(' · ')}</p>
     <blockquote>“{m.quote}”</blockquote>
     <div className="profile-metrics"><div><BedDouble size={19}/><small>床号</small><strong>{m.bed}</strong></div><div><MapPin size={19}/><small>地区</small><strong>{m.region}</strong></div><div><Brain size={19}/><small>MBTI</small><strong>{m.mbti}</strong></div></div>

@@ -1,0 +1,18 @@
+.ip-embedded{pointer-events:none;touch-action:pan-y}
+.ip-art{display:block;width:100%;height:100%;overflow:hidden;pointer-events:none}
+.ip-study{position:absolute;inset:0;overflow:hidden}
+.ip-embedded.member-page-bg{width:100%;height:100%;overflow:hidden}
+.ip-embedded.mobile-profile-cover{position:relative;overflow:hidden}
+.ip-siu-fx{position:absolute;width:clamp(90px,11vw,158px);pointer-events:none;opacity:0;transform-origin:50% 90%;filter:drop-shadow(0 3px 3px #080b1599)}
+.ip-siu-fx svg{display:block;width:100%;height:auto}
+.ip-head-canvas,.ip-body-canvas,.ip-upper-canvas{display:block;width:100%;height:100%}
+.ip-person{filter:brightness(.78) saturate(.94)}
+.ip-hit{pointer-events:all;cursor:pointer}
+.ip-hit:focus{outline:none}
+.ip-hit:focus-visible{stroke:#d5bd81;stroke-width:4;stroke-dasharray:12 8}
+.members-page:has(.ip-embedded) .member-page-shade,
+.members-page:has(.ip-embedded) .profile,
+.members-page:has(.ip-embedded) .profile-watermark{pointer-events:none}
+.members-page:has(.ip-embedded) .profile aside,
+.members-page:has(.ip-embedded) .collapse{pointer-events:auto}
+@media(prefers-reduced-motion:reduce){.ip-hit{cursor:default}}
