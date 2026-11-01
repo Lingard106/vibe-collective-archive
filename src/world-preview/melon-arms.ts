@@ -1,4 +1,7 @@
-import {paintImageTriangle,type Point} from './portrait-head';
+import type {Point} from './portrait-head';
+
+// Only redraw the moving arms' bounds, at original scene resolution.
+export const MELON_ARM_CANVAS={x:260,y:380,width:360,height:290} as const;
 
 // Forearms and hands only. The sleeve edges remain on the original portrait.
 export const MELON_ARM_PATHS=[
@@ -27,7 +30,24 @@ const FRUIT='M367 531L390 528L565 539L570 559L565 580L554 604L536 624L510 637L47
 // The far forearm is hidden by the fruit in the original painting. Reconstruct
 // that newly revealed skin using the original near-arm texture, not fruit pixels.
 export function isMelonTexture(r:number,g:number,b:number){
-  return (r>g*1.55&&r>b*1.4)||(g>b*1.45&&r<g*1.45&&r<150);
+  // Also reject the pale rind previously retained as white chips on the fists.
+  return !(r>g*1.075&&r<g*1.8&&g>b*1.08&&r-b>25);
+}
+
+type ArmCoverage={arm:0|1;root:Point;elbow:Point;wrist:Point;hand:Point[];upperWidth:number;lowerWidth:number};
+const handPoints=(arm:0|1,dx:number,dy:number):Point[]=>{
+  const points:Point[]=arm===0?[[351,579],[414,593],[418,607],[410,631],[394,643],[360,638],[340,629]]:[[551,584],[574,589],[583,610],[574,631],[548,642],[533,630],[535,610]];
+  return points.map(([x,y])=>[x+dx,y+dy]);
+};
+export function armCoverage(dx:number,dy:number):ArmCoverage[]{
+  return BONES.map((bone,arm)=>({arm:arm as 0|1,root:bone.root,elbow:dx===0&&dy===0?bone.elbow:elbowAt(bone,[bone.wrist[0]+dx,bone.wrist[1]+dy]),wrist:[bone.wrist[0]+dx,bone.wrist[1]+dy] as Point,hand:handPoints(arm as 0|1,dx,dy),upperWidth:arm===0?54:27,lowerWidth:arm===0?46:29}));
+}
+
+function handPath(points:Point[]){const path=new Path2D();points.forEach(([x,y],i)=>i?path.lineTo(x,y):path.moveTo(x,y));path.closePath();return path}
+function bonePath(a:Point,b:Point){const path=new Path2D();path.moveTo(...a);path.lineTo(...b);return path}
+function jointPath([x,y]:Point,r:number){
+  const b=r*.27;
+  return handPath([[x-r+b,y-r],[x+r-b,y-r],[x+r,y-r+b],[x+r,y+r-b],[x+r-b,y+r],[x-r+b,y+r],[x-r,y+r-b],[x-r,y-r+b]]);
 }
 
 // Analytic two-link IK: keep the elbow on its original side of the shoulder /
@@ -63,10 +83,17 @@ export function armMeshes(dx:number,dy:number){
 // Target has full 1672 x 940 scene registration. Each source cel is a tiny crop,
 // not another full-scene canvas. No source resolution or texture is reduced.
 export function createMelonArmsPainter(image:HTMLImageElement,target:HTMLCanvasElement){
-  target.width=1672;target.height=940;
+  target.width=MELON_ARM_CANVAS.width;target.height=MELON_ARM_CANVAS.height;
   const ctx=target.getContext('2d')!;
+  ctx.imageSmoothingQuality='high';
   const skin=document.createElement('canvas');skin.width=32;skin.height=24;
   skin.getContext('2d')!.drawImage(image,296,550,32,24,0,0,32,24);
+  const farSkin=document.createElement('canvas');farSkin.width=32;farSkin.height=24;
+  const farSkinCtx=farSkin.getContext('2d')!;farSkinCtx.filter='brightness(.88) saturate(.9)';farSkinCtx.drawImage(skin,0,0);
+  const makeLayer=()=>{const c=document.createElement('canvas');c.width=target.width;c.height=target.height;return c};
+  const layers=[makeLayer(),makeLayer()],mattes=[makeLayer(),makeLayer()];
+  const layerContexts=layers.map(c=>c.getContext('2d')!),matteContexts=mattes.map(c=>c.getContext('2d')!);
+  const patterns=layerContexts.map((c,i)=>c.createPattern(i===1?farSkin:skin,'repeat')!);
   const cels=PARTS.map(part=>{
     const [x,y,w,h]=part.bounds,c=document.createElement('canvas');c.width=w;c.height=h;
     const context=c.getContext('2d')!;
@@ -94,12 +121,34 @@ export function createMelonArmsPainter(image:HTMLImageElement,target:HTMLCanvasE
   let last='';
   return(dx:number,dy:number)=>{
     const key=`${dx.toFixed(3)},${dy.toFixed(3)}`;if(key===last)return;last=key;
-    ctx.clearRect(0,0,1672,940);
-    armMeshes(dx,dy).forEach((mesh,index)=>{
-      const cel=cels[index];
-      if(dx===0&&dy===0){ctx.drawImage(cel,PARTS[index].bounds[0],PARTS[index].bounds[1]);return}
-      const source:Point[]=[[0,0],[cel.width,0],[cel.width,cel.height],[0,cel.height]];
-      for(const ids of [[0,1,2],[0,2,3]])paintImageTriangle(ctx,cel,ids.map(i=>source[i]),ids.map(i=>mesh.dest[i]));
-    });
+    ctx.clearRect(0,0,target.width,target.height);
+    const meshes=armMeshes(dx,dy),coverage=armCoverage(dx,dy);
+    // A continuous original-texture backing joins sleeve -> elbow -> wrist ->
+    // palm. Independent transparent cels alone leave holes when the elbow bends.
+    for(const arm of [1,0] as const){
+      const shape=coverage[arm],matte=mattes[arm],m=matteContexts[arm],paint=layerContexts[arm];
+      m.clearRect(0,0,target.width,target.height);m.save();
+      m.translate(-MELON_ARM_CANVAS.x,-MELON_ARM_CANVAS.y);
+      m.strokeStyle='#fff';m.fillStyle='#fff';m.lineCap='butt';m.lineJoin='bevel';
+      m.lineWidth=shape.upperWidth;m.stroke(bonePath(shape.root,shape.elbow));
+      m.lineWidth=shape.lowerWidth;m.stroke(bonePath(shape.elbow,shape.wrist));
+      // Bevelled voxel-style joints fill the inside of a bend without turning
+      // the painted rectangular forearm into a rounded rubber tube.
+      m.fill(jointPath(shape.elbow,Math.max(shape.upperWidth,shape.lowerWidth)*.5));
+      m.fill(jointPath(shape.wrist,shape.lowerWidth*.5));
+      m.fill(handPath(shape.hand));m.restore();
+      paint.clearRect(0,0,target.width,target.height);
+      paint.fillStyle=patterns[arm];paint.fillRect(0,0,target.width,target.height);
+      meshes.forEach((mesh,index)=>{
+        if(mesh.arm!==arm)return;
+        const cel=cels[index],[a,b,,d]=mesh.dest;
+        paint.save();
+        // All six cels are rigid: one native affine draw avoids a triangle seam.
+        paint.setTransform((b[0]-a[0])/cel.width,(b[1]-a[1])/cel.width,(d[0]-a[0])/cel.height,(d[1]-a[1])/cel.height,a[0]-MELON_ARM_CANVAS.x,a[1]-MELON_ARM_CANVAS.y);
+        paint.drawImage(cel,0,0);paint.restore();
+      });
+      paint.globalCompositeOperation='destination-in';paint.drawImage(matte,0,0);paint.globalCompositeOperation='source-over';
+      ctx.drawImage(layers[arm],0,0);
+    }
   };
 }

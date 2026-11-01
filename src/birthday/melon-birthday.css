@@ -1,0 +1,10 @@
+.melon-birthday-home .hero-shade{background:linear-gradient(180deg,#15132166,transparent 31%,transparent 76%,#11121d99)}
+.melon-birthday-home .minute-counter{top:106px;bottom:auto;left:0;right:0;height:auto;min-height:0;display:block;transform:none;padding:0 20px;text-align:center;pointer-events:none;text-shadow:0 2px 14px #1d1022b3}
+.melon-birthday-home .minute-counter p{margin:0 0 8px;color:#fff0d4;font-size:11px;letter-spacing:.16em;max-width:none}
+.melon-birthday-home .minute-counter strong{display:block;width:auto;font-size:clamp(27px,3vw,42px);line-height:1.3;letter-spacing:.08em;font-weight:500;color:#fff2d6}
+.melon-birthday-home .minute-counter div{justify-content:center;margin-top:8px;font-size:10px;color:#ffedcb;letter-spacing:.12em}
+.melon-birthday-home .minute-counter i{width:25px;background:#e8c88a88}
+.melon-birthday-home .overview-mark{display:none}
+.melon-birthday-home .overview-foot{color:#fff0d5;text-shadow:0 1px 8px #191122}
+@media(max-width:650px){.melon-birthday-home .minute-counter{top:112px;padding:0 16px}.melon-birthday-home .minute-counter p{font-size:10px;margin-bottom:7px}.melon-birthday-home .minute-counter strong{font-size:28px;letter-spacing:.04em;white-space:normal}.melon-birthday-home .minute-counter div{font-size:8px;letter-spacing:.06em;gap:7px}.melon-birthday-home .overview-foot{right:20px;font-size:10px}.melon-birthday-home .hero-bg img{object-position:center center}}
+@media(max-height:640px) and (min-width:651px){.melon-birthday-home .minute-counter{top:84px}.melon-birthday-home .minute-counter p{font-size:9px;margin-bottom:3px}.melon-birthday-home .minute-counter strong{font-size:28px}.melon-birthday-home .minute-counter div{display:none}}
