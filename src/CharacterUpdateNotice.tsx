@@ -40,12 +40,12 @@ export default function CharacterUpdateNotice(){
       <div className="character-update-stamp" aria-hidden="true"><span/><span/><span/><span/></div>
       <p className="character-update-date">11 月角色互动更新</p>
       <h2 id="character-update-title">主创角色，动起来了。</h2>
-      <p id="character-update-intro" className="character-update-intro">去主创页，试着点一点林加德。<br/>他会用不同的动作回应你。</p>
+      <p id="character-update-intro" className="character-update-intro">去主创页，试着点一点林加德或西瓜。<br/>看看他们会怎样回应你。</p>
       <div className="character-update-features">
-        <div><MousePointer2 size={19}/><p><strong>点击，收获一个小回应</strong><span>挥手、张臂庆祝，或是一次 Siu！</span></p></div>
+        <div><MousePointer2 size={19}/><p><strong>点击，收获一个小回应</strong><span>林加德挥手、庆祝或 Siu；西瓜坐着吃瓜。</span></p></div>
         <div><Hand size={19}/><p><strong>不点击，也有自己的小动作</strong><span>笑一下、踮脚探头，再举手向你招呼。</span></p></div>
       </div>
-      <p className="character-update-next"><Sparkles size={14}/><span>本次先开放林加德，其他成员保持原样。<br/>接下来会继续打磨人物动作与互动细节。</span></p>
+      <p className="character-update-next"><Sparkles size={14}/><span>目前开放林加德与西瓜，其他成员保持原样。<br/>接下来会继续打磨人物动作与互动细节。</span></p>
       <div className="character-update-actions">
         <button className="character-update-primary" type="button" autoFocus onClick={()=>{dismiss();navigate('/members')}}>去主创页看看<ArrowUpRight size={17}/></button>
         <button className="character-update-secondary" type="button" onClick={dismiss}>继续浏览</button>

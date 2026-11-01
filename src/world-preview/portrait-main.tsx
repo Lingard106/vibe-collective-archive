@@ -4,6 +4,7 @@ import {MemoryRouter} from 'react-router-dom';
 import App from '../App';
 import {MemberArtworkContext,type MemberArtworkRenderer} from '../MemberArtworkContext';
 import ImagePortraitStage from './ImagePortraitStage';
+import MelonEatingStage from './MelonEatingStage';
 import type {PortraitAction} from './portrait-motion';
 import {profileImageSrc} from '../media/image-loader';
 import '../styles.css';
@@ -23,7 +24,8 @@ const review:{action?:PortraitAction;age?:number;idleTime?:number;gaze?:number;z
   :import.meta.env.DEV&&(action==='original'||action==='nod'||action==='curious'||action==='wave'||action==='siu')
     ?{action,age:frame!==undefined&&Number.isFinite(frame)?Math.max(0,Math.min(60,frame)):undefined,gaze:bounded('gaze',-1,1),zoom:bounded('zoom',1,3)}:undefined;
 const renderArtwork:MemberArtworkRenderer=(member,surface)=>member.id==='lingard'
-  ?<ImagePortraitStage key={member.id+'-'+surface} src={profileImageSrc(member.hero)} surface={surface} review={review}/>:null;
+  ?<ImagePortraitStage key={member.id+'-'+surface} src={profileImageSrc(member.hero)} surface={surface} review={review}/>:member.id==='melon'
+    ?<MelonEatingStage key={member.id+'-'+surface} src={profileImageSrc(member.hero)} surface={surface} reviewFrame={import.meta.env.DEV?bounded('melonFrame',0,8):undefined}/>:null;
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode><MemoryRouter initialEntries={['/members']}>
