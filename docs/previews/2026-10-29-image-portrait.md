@@ -54,3 +54,21 @@ Run `npm run dev -- --host 127.0.0.1 --port 5180 --strictPort` from the website 
 - Real browser input confirmed three triggers are accepted as one active and two pending actions. Mobile and desktop Siu effect placement were visually checked, and a 2.5× head closeup was reviewed.
 - Independent read-only review found post-landing foot slide; its timing was corrected and a regression check added. Queue pause/FIFO and endpoint checks passed.
 - Only the visible responsive surface allocates the rig. Idle torso and planted-shoe regions reuse the original pixels instead of redundant triangle warping. Browser-hidden throttling is not treated as an on-screen frame-rate benchmark.
+
+## 2026-10-31：自主待机互动
+
+在原有姿态、UI、背景和五种点击回应上追加三类无需点击的动作：
+
+- 笑：胸口舒展、头肩后仰，眯眼、像素小嘴张合、轻微笑颤，不以前倾点头模拟笑，不伸缩头发或下颌。
+- 踮脚探头：脚尖保持接地，更明显地抬高身体、前探和左右观察，同时举手轻摆招呼，然后收回。
+- 主动招呼：抬起一只手，腕部轻摆、微笑，随后回到站姿；根据最终反馈，不显示人物旁的文字提示框。
+
+43 秒的待机周期使用不同间隔，过半时间保留呼吸和自然站姿。所有新动作平滑进入/退出；用户点击时淡出让位，不占用点击队列，也不改变原姿势 25% 的随机触发概率。页面隐藏/离屏暂停，减少动态效果模式禁用自主动作。未新增图片资源或修改原图。
+
+本地连续播放：`/previews/member-portrait.html`。静态审查：`?idle=invite`、`?idle=peek`、`?idle=laugh`；可加 `&zoom=2` 检查细节，仅开发环境生效。不要用旧的 `?action=original&frame=3.25` 查看待机，该地址故意暂停在庆祝关键帧。
+
+验证：`node scripts/check-portrait-motion.mjs` 覆盖两个待机周期、三类动作、点击接管/端点连续性、关节/腿部网格和脚尖支撑、减少动态效果；`npm run build`。
+
+### 2026-11-01：首页更新提示
+
+进入首页时通过原生 dialog 显示一次版本更新提示，介绍当前林加德的点击回应和自主待机动作，并预告继续打磨动作细节。支持「去主创页看看」「继续浏览」、关闭按钮、Escape 和点击遮罩关闭。同一浏览器确认过当前版本后不再反复出现；localStorage 不可用时在当前标签页内记忆。仅首页挂载，关闭后不改变首页原有布局和背景。

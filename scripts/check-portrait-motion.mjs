@@ -12,19 +12,37 @@ function moduleUrl(file){
   const url='data:text/javascript;base64,'+Buffer.from(bundled).toString('base64');urls.set(file,url);return url;
 }
 const base=resolve('src/world-preview');
-const {portraitPose,choosePortraitAction,ACTION_DURATION,GREETING_MOVE}=await import(moduleUrl(resolve(base,'portrait-motion.ts')));
+const {portraitPose,choosePortraitAction,ACTION_DURATION,GREETING_MOVE,IDLE_CYCLE,idleGestureAt}=await import(moduleUrl(resolve(base,'portrait-motion.ts')));
 const {BODY_MESH,BODY_TRIANGLES,lowerBodyMesh}=await import(moduleUrl(resolve(base,'portrait-body.ts')));
 const {UPPER_POSES,interpolateArm,upperBodyMeshes}=await import(moduleUrl(resolve(base,'portrait-upper.ts')));
 const {HEAD_VIEWS,HEAD_TRIANGLES,headMesh,animatedHeadMesh}=await import(moduleUrl(resolve(base,'portrait-head.ts')));
 const {createPortraitActionQueue}=await import(moduleUrl(resolve(base,'portrait-actions.ts')));
 const area=(a,b,c)=>(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
 let minArea=Infinity;
-for(let time=0;time<=46;time+=.02){
+const seenIdle=new Set();let calm=0,idleSamples=0;
+for(let time=0;time<=IDLE_CYCLE*2;time+=.02){
   const pose=portraitPose(time,0,0);
+  seenIdle.add(pose.idleGesture);idleSamples++;if(pose.idleGesture==='rest')calm++;
+  assert.equal(pose.approach,0,'Autonomous gestures never walk toward the viewer');
+  assert.equal(pose.siuLabel,0,'Idle does not trigger a celebration');
+  assert.equal(pose.rootY+pose.tiptoe*14,0,'Tiptoe retains toe contact');
+  for(const [key,value] of Object.entries(pose))if(typeof value==='number')assert(Number.isFinite(value),key);
+  const legs=lowerBodyMesh(pose.hipX,pose.breath+pose.crouch,pose.bodyRoll,pose);
+  for(const ids of BODY_TRIANGLES)assert(area(...ids.map(i=>legs[i]))>0,`Idle leg fold ${time}`);
   for(const [part,mesh] of upperBodyMeshes(pose).entries()){
     for(let row=0;row<mesh.length-2;row+=2)for(const ids of [[row,row+1,row+3],[row,row+3,row+2]])assert(area(...ids.map(i=>mesh[i]))>0,`Idle mesh fold: ${time.toFixed(2)} part ${part}`);
+    for(const [x,y] of mesh)assert(x>=-280&&x<=1280&&y>=-220&&y<=1000,`Idle limb clipping at ${time}`);
   }
 }
+assert.deepEqual([...seenIdle].sort(),['invite','laugh','peek','rest']);
+assert(calm/idleSamples>.5,'Leave natural pauses between autonomous gestures');
+for(const time of [0,IDLE_CYCLE])assert(Object.values(idleGestureAt(time)).every(value=>value===0),'Cycle seam is neutral');
+assert(portraitPose(26,0,0).laugh>.7,'Laugh visibly changes expression');
+const peekPose=portraitPose(15.6,0,0);
+assert(peekPose.tiptoe>2.9,'Peek noticeably raises the body');
+assert(peekPose.leftOpen>.65&&peekPose.leftBend>35,'Peek includes a raised waving arm');
+assert(peekPose.headX>17&&peekPose.headScale<=1.035,'Peek leans toward the viewer without exaggerated head scaling');
+assert.equal('inviteCue' in peekPose,false,'No floating click invitation label');
 for(const action of Object.keys(ACTION_DURATION)){
   for(let age=-.01;age<=ACTION_DURATION[action]+.01;age+=.01){
     const p=portraitPose(12+age,.3,-.2,age,false,action);
@@ -47,12 +65,16 @@ for(const action of Object.keys(ACTION_DURATION)){
       for(const [x,y] of arm)assert(x>=-280&&x<=1280&&y>=-220&&y<=1000,`${action} clipped upper limb at ${age.toFixed(2)}: ${x},${y}`);
     });
   }
-  for(const time of [0,12,19,22.99]){
+  // A click can happen at any autonomous gesture's peak or recovery.
+  for(const time of [0,5.4,12,15.6,19,22.99,26,36.4,43]){
    const baseline=portraitPose(time,.2,.2,100,false,action);
    for(const age of [0,ACTION_DURATION[action]]){
     const p=portraitPose(time,.2,.2,age,false,action);
     for(const key of Object.keys(baseline))if(typeof baseline[key]==='number')assert(Math.abs(p[key]-baseline[key])<1e-8,`${action} ${key} endpoint`);
    }
+   const response=portraitPose(time,.2,.2,1.2,false,action);
+   assert.equal(response.laugh,0,'Click action has priority over idle expression');
+   assert.equal(response.idleGesture,'rest','Click action suppresses autonomous gestures');
   }
 }
 for(let yaw=-.22;yaw<=.72;yaw+=.01)for(const smile of [0,.5,1]){
@@ -84,7 +106,11 @@ assert.equal(peaks('leftStep',0,2),1);assert.equal(peaks('rightStep',0,2),1);
 assert.equal(peaks('leftStep',7.1,9.2),1);assert.equal(peaks('rightStep',7.1,9.2),1);
 assert.equal(peaks('nod',3.3,5.2),2);
 assert.equal(portraitPose(3,1,1,3,true,'original').approach,0);
+for(const time of [5.4,15.6,26]){
+  const reduced=portraitPose(time,1,1,100,true);
+  assert.equal(reduced.laugh,0);assert.equal(reduced.tiptoe,0);assert.equal(reduced.headScale,1);assert.equal(reduced.idleGesture,'rest');
+}
 const siuLanding=portraitPose(2.15,0,0,2.15,false,'siu');
 assert(Math.abs(siuLanding.rootY)<1e-10);
 assert.equal(siuLanding.legSpread,portraitPose(2.3,0,0,2.3,false,'siu').legSpread,'Siu feet finish opening before touching the ground');
-console.log(`PASS: five actions, continuous endpoints, queued 100 clicks without loss, planted feet, 25% celebration probability, head/arm/leg meshes (minimum leg area ${minArea.toFixed(2)}).`);
+console.log(`PASS: three autonomous gestures with natural pauses, two idle cycles, click priority/continuous endpoints, queued 100 clicks without loss, planted feet, 25% celebration probability, reduced motion, head/arm/leg meshes (minimum leg area ${minArea.toFixed(2)}).`);

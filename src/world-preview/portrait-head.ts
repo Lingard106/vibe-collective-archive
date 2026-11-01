@@ -79,10 +79,10 @@ export function createHeadPainter(atlas:HTMLImageElement,target:HTMLCanvasElemen
     const ctx=out.getContext('2d')!;ctx.clearRect(0,0,HEAD_WIDTH,HEAD_HEIGHT);
     for(const indexes of HEAD_TRIANGLES)paintImageTriangle(ctx,image,indexes.map(i=>src[i]),indexes.map(i=>dst[i]));
   };
-  let lastYaw=100,lastBlink=100,lastSmile=100;
-  return(yaw:number,blink:number,smile=0)=>{
-    if(Math.abs(yaw-lastYaw)<.0015&&Math.abs(blink-lastBlink)<.008&&Math.abs(smile-lastSmile)<.005)return;
-    lastYaw=yaw;lastBlink=blink;lastSmile=smile;
+  let lastYaw=100,lastBlink=100,lastSmile=100,lastLaugh=100;
+  return(yaw:number,blink:number,smile=0,laugh=0)=>{
+    if(Math.abs(yaw-lastYaw)<.0015&&Math.abs(blink-lastBlink)<.008&&Math.abs(smile-lastSmile)<.005&&Math.abs(laugh-lastLaugh)<.005)return;
+    lastYaw=yaw;lastBlink=blink;lastSmile=smile;lastLaugh=laugh;
     // Keep a single coherent painted head. Independently generated angles have
     // different hair blocks and jawlines: dissolving them creates ghost edges.
     // Small head turns use rigid outer hair + bounded inner facial parallax.
@@ -98,6 +98,18 @@ export function createHeadPainter(atlas:HTMLImageElement,target:HTMLCanvasElemen
         points.forEach(([x,y],i)=>{const px=cx+(x-cx)*.85,py=cy+(y-cy)*.79;if(i)context.lineTo(px,py);else context.moveTo(px,py)});context.closePath();
       }
       context.clip();context.globalAlpha=blink;context.drawImage(closed,0,0);context.restore();
+    }
+    if(laugh>.005){
+      // A small pixel-art mouth over the registered smile, not a stretched jaw.
+      // Teeth and tongue follow the same facial plane; hair/glasses stay intact.
+      const a=dest[32],b=dest[33],width=b[0]-a[0],slope=(b[1]-a[1])/width;
+      context.save();context.translate(a[0],a[1]-3);context.transform(1,slope,0,1,0,0);
+      context.globalAlpha=Math.min(1,laugh*2);const depth=4+14*laugh;
+      context.fillStyle='#62231c';context.beginPath();
+      context.moveTo(-2,0);context.lineTo(3,0);context.lineTo(3,3);context.lineTo(width-3,3);context.lineTo(width-3,0);context.lineTo(width+2,0);
+      context.lineTo(width+2,depth-4);context.lineTo(width-4,depth-4);context.lineTo(width-4,depth);context.lineTo(5,depth);context.lineTo(5,depth-4);context.lineTo(-2,depth-4);context.closePath();context.fill();
+      context.fillStyle='#fff0d7';context.fillRect(6,3,width-12,2+2*laugh);
+      context.fillStyle='#ce6b5c';context.fillRect(width*.25,depth-4,width*.5,3*laugh);context.restore();
     }
   };
 }

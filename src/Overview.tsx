@@ -4,6 +4,7 @@ import {metDate, photos} from './data';
 import CrossfadeImage from './media/CrossfadeImage';
 import {prepareImage} from './media/image-loader';
 import {useMediaPreference, usePageVisible} from './media/useMediaPreference';
+import CharacterUpdateNotice from './CharacterUpdateNotice';
 
 const backgrounds = ['/media/overview-bg.webp', ...photos];
 export default function Overview() {
@@ -49,6 +50,7 @@ export default function Overview() {
     return () => clearTimeout(timer);
   }, [displayed, mobile, pageVisible, reduced, ready]);
   return <section className="page overview">
+    <CharacterUpdateNotice/>
     <div className="hero-bg"><CrossfadeImage src={source}/></div><div className="hero-shade"/>
     <div className="overview-mark"><span>C106</span><small>COLLECTIVE ARCHIVE</small></div>
     <div className="minute-counter"><p>从 2021.09.01 开始，我们已经相识</p><strong>{minutes.toLocaleString()}</strong><div><i/> MINUTES TOGETHER <i/></div></div>

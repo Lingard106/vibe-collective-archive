@@ -17,7 +17,7 @@ const BODY='M488 491L608 487 625 532 622 624 641 716 654 757 673 775 677 798 654
 const LEFT_ARM='M522 489L479 477 432 463 428 451 418 438 409 439 405 447 399 443 393 445 394 450 387 448 385 451 386 458 381 459 382 466 379 470 382 477 378 481 385 490 423 505 473 521 512 535 526 526Z';
 const RIGHT_ARM='M604 495L646 477 680 465 681 458 687 454 693 449Q696 447 698 451L699 455 708 454 715 459 721 468 725 479 723 490 695 500 659 515 620 534 604 527Z';
 
-export default function ImagePortraitStage({src,surface='study',review}:{src:string;surface?:Surface;review?:{action:PortraitAction;age?:number;gaze?:number;zoom?:number}}){
+export default function ImagePortraitStage({src,surface='study',review}:{src:string;surface?:Surface;review?:{action?:PortraitAction;age?:number;idleTime?:number;gaze?:number;zoom?:number}}){
   const id=useId().replace(/:/g,'');
   const host=useRef<HTMLDivElement>(null),svg=useRef<SVGSVGElement>(null),scene=useRef<SVGGElement>(null);
   const upper=useRef<SVGGElement>(null),head=useRef<SVGGElement>(null),headCanvas=useRef<HTMLCanvasElement>(null);
@@ -42,7 +42,7 @@ export default function ImagePortraitStage({src,surface='study',review}:{src:str
     const running=()=>!disposed&&loaded&&visible&&!document.hidden&&!media.matches&&review?.age===undefined;
     const draw=()=>{
       const state=actions.sample(time);
-      const pose=portraitPose(review?.age??time,review?.gaze??lookX,lookY,review?.age??state.age,media.matches,review?.action??state.action);
+      const pose=portraitPose(review?.idleTime??review?.age??time,review?.gaze??lookX,lookY,review?.idleTime!==undefined?100:review?.age??state.age,media.matches,review?.action??state.action);
       scene.current?.setAttribute('transform',`translate(${camera.x} ${camera.y}) scale(${camera.scale})`);
       upper.current?.setAttribute('transform',`translate(${pose.hipX} ${pose.breath+pose.crouch}) rotate(${pose.bodyRoll} 555 840)`);
       actor.current?.setAttribute('transform',`translate(${pose.approach*GREETING_MOVE.x} ${pose.approach*GREETING_MOVE.y+pose.rootY}) translate(555 1490) rotate(${pose.rootRoll}) scale(${1+pose.approach*GREETING_MOVE.scale}) translate(-555 -1490)`);
@@ -52,9 +52,9 @@ export default function ImagePortraitStage({src,surface='study',review}:{src:str
       shadow.current?.setAttribute('opacity',String(.2-Math.min(1,Math.abs(pose.rootY)/118)*.08));
       const arms=paintUpper?.(pose);if(arms)armHit.current?.setAttribute('d',arms);
       const headTurn=pose.yaw-.3;
-      head.current?.setAttribute('transform',`translate(${headTurn*9} ${pose.nod}) rotate(${pose.tilt} 555 466) translate(555 466) skewY(${headTurn*1.8}) scale(${1-Math.abs(headTurn)*.025} 1) translate(-555 -466)`);
+      head.current?.setAttribute('transform',`translate(${headTurn*9+pose.headX} ${pose.nod+pose.headY}) rotate(${pose.tilt} 555 466) translate(555 466) skewY(${headTurn*1.8}) scale(${(1-Math.abs(headTurn)*.025)*pose.headScale} ${pose.headScale}) translate(-555 -466)`);
       paintLower?.(pose.hipX,pose.breath+pose.crouch,pose.bodyRoll,pose);
-      paint?.(pose.yaw,pose.blink,pose.smile);
+      paint?.(pose.yaw,pose.blink,pose.smile,pose.laugh);
       if(siuLabel.current){
         const label=siuLabel.current;
         label.style.opacity=String(pose.siuLabel);
@@ -66,6 +66,7 @@ export default function ImagePortraitStage({src,surface='study',review}:{src:str
       siuImpact.current?.setAttribute('transform',`translate(548 817) scale(${.7+pose.siuImpact*.55})`);
       el.dataset.yaw=pose.yaw.toFixed(3);el.dataset.blink=pose.blink.toFixed(2);
       el.dataset.pose=pose.phase;el.dataset.approach=pose.approach.toFixed(3);
+      el.dataset.idleGesture=pose.idleGesture;el.dataset.laugh=pose.laugh.toFixed(2);
       el.dataset.hip=pose.hipX.toFixed(2);
       el.dataset.pending=String(state.pending);el.dataset.accepted=String(state.accepted);el.dataset.started=String(state.started);
       el.dataset.action=state.action;el.dataset.age=state.age.toFixed(2);
@@ -142,7 +143,7 @@ export default function ImagePortraitStage({src,surface='study',review}:{src:str
 
   const className=surface==='background'?'member-page-bg':surface==='cover'?'mobile-profile-cover':'ip-study';
   return <div ref={host} className={`ip-embedded ${className}`} data-ready={ready} data-failed={failed}>
-    <svg ref={svg} className="ip-art" preserveAspectRatio="none" aria-label="林加德图像动画预览：自然站立、眨眼、随鼠标小幅转头">
+    <svg ref={svg} className="ip-art" preserveAspectRatio="none" aria-label="林加德互动人物：自然站立、笑、踮脚探头、招手，点击人物触发动作">
       <defs>
         <filter id={id+'-edge'} x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation=".7"/></filter>
         <mask id={id+'-erase'} maskUnits="userSpaceOnUse" x="370" y="370" width="365" height="470">
