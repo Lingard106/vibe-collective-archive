@@ -47,7 +47,7 @@ export function animatedHeadMesh(yaw:number,smile=0):Point[]{
   }),smile);
 }
 function canvas(){const el=document.createElement('canvas');el.width=HEAD_WIDTH;el.height=HEAD_HEIGHT;return el}
-export function paintImageTriangle(ctx:CanvasRenderingContext2D,image:CanvasImageSource,src:readonly Point[],dst:readonly Point[]){
+export function paintImageTriangle(ctx:CanvasRenderingContext2D,image:CanvasImageSource,src:readonly Point[],dst:readonly Point[],bleed=.45){
   const [[x0,y0],[x1,y1],[x2,y2]]=src,[[u0,v0],[u1,v1],[u2,v2]]=dst;
   const den=x0*(y1-y2)+x1*(y2-y0)+x2*(y0-y1);
   if(Math.abs(den)<.001)return;
@@ -60,7 +60,7 @@ export function paintImageTriangle(ctx:CanvasRenderingContext2D,image:CanvasImag
   ctx.save();ctx.beginPath();
   // Slightly overlap raster triangle edges to avoid bright subpixel cracks.
   const cx=(u0+u1+u2)/3,cy=(v0+v1+v2)/3;
-  dst.forEach(([x,y],i)=>{const length=Math.hypot(x-cx,y-cy)||1;const px=x+(x-cx)/length*.45,py=y+(y-cy)/length*.45;if(i)ctx.lineTo(px,py);else ctx.moveTo(px,py)});
+  dst.forEach(([x,y],i)=>{const length=Math.hypot(x-cx,y-cy)||1;const px=x+(x-cx)/length*bleed,py=y+(y-cy)/length*bleed;if(i)ctx.lineTo(px,py);else ctx.moveTo(px,py)});
   ctx.closePath();ctx.clip();ctx.setTransform(a,b,c,d,e,f);ctx.drawImage(image,0,0);ctx.restore();
 }
 export function createHeadPainter(atlas:HTMLImageElement,target:HTMLCanvasElement){

@@ -1,5 +1,7 @@
 import {useEffect,useId,useRef,useState} from 'react';
 import lapPatchUrl from './assets/melon-lap-patch-v1.webp';
+import cleanGripUrl from './assets/melon-clean-grip-v2.webp';
+import raisedGripUrl from './assets/melon-raised-grip-v2.webp';
 import birthdayCakeUrl from './assets/melon-birthday-cake-2026.webp';
 import {useMelonBirthday} from '../birthday/useMelonBirthday';
 import {MELON_EAT_DURATION,melonEatingPose} from './melon-motion';
@@ -16,7 +18,7 @@ export default function MelonEatingStage({src,surface,reviewFrame}:{src:string;s
   const birthday=useMelonBirthday();
   const id=useId().replace(/:/g,'');
   const host=useRef<HTMLDivElement>(null),svg=useRef<SVGSVGElement>(null),scene=useRef<SVGGElement>(null);
-  const actionLayer=useRef<SVGGElement>(null),fruit=useRef<SVGGElement>(null),arms=useRef<HTMLCanvasElement>(null);
+  const actionLayer=useRef<SVGGElement>(null),fruit=useRef<SVGGElement>(null),arms=useRef<HTMLCanvasElement>(null),grips=useRef<HTMLCanvasElement>(null);
   const biteOne=useRef<SVGPathElement>(null),biteTwo=useRef<SVGPathElement>(null),mouth=useRef<SVGPathElement>(null);
   const trigger=useRef<()=>void>(()=>{});
   const [ready,setReady]=useState(false);
@@ -35,12 +37,14 @@ export default function MelonEatingStage({src,surface,reviewFrame}:{src:string;s
       const pose=melonEatingPose(age,reduced.matches);
       // A birthday cake is offered gently; do not push lit candles into his face.
       const handX=pose.forearmX*(birthday?.28:1),handY=pose.forearmY*(birthday?.28:1);
-      const opacity=age>=0&&age<=MELON_EAT_DURATION&&!reduced.matches?Math.min(ease(age/.25),ease((MELON_EAT_DURATION-age)/.35)):0;
-      actionLayer.current?.setAttribute('opacity',String(loaded&&enabled()?(birthday?1:opacity):0));
+      // Keep the same cleaned grip at rest and in motion, rather than repainting
+      // the hands with a dissolve on every click/reset.
+      actionLayer.current?.setAttribute('opacity',String(loaded&&enabled()?1:0));
       fruit.current?.setAttribute('transform',`translate(${handX} ${handY})`);
       painter?.(handX,handY);
-      biteOne.current?.setAttribute('opacity',String(ease((age-2)/.12)));
-      biteTwo.current?.setAttribute('opacity',String(ease((age-3.5)/.12)));
+      const biteVisibility=age>=0&&age<=MELON_EAT_DURATION?1-ease((age-6.8)/.6):0;
+      biteOne.current?.setAttribute('opacity',String(ease((age-2)/.12)*biteVisibility));
+      biteTwo.current?.setAttribute('opacity',String(ease((age-3.5)/.12)*biteVisibility));
       mouth.current?.setAttribute('opacity',String(birthday?0:pose.mouthOpen*.7));
       mouth.current?.setAttribute('transform',`translate(0 ${pose.chew*.7})`);
       el.dataset.pose=pose.phase;el.dataset.age=age.toFixed(2);el.dataset.lift=pose.lift.toFixed(3);
@@ -73,9 +77,9 @@ export default function MelonEatingStage({src,surface,reviewFrame}:{src:string;s
     const load=()=>{
       if(loaded||loading||disposed||!enabled())return;
       loading=true;
-      Promise.all([prepareImage(src),prepareImage(lapPatchUrl),...(birthday?[prepareImage(birthdayCakeUrl)]:[])]).then(([original])=>{
+      Promise.all([prepareImage(src),prepareImage(lapPatchUrl),prepareImage(cleanGripUrl),prepareImage(raisedGripUrl),...(birthday?[prepareImage(birthdayCakeUrl)]:[])]).then(([, ,cleanGrip,raisedGrip])=>{
         if(disposed)return;
-        painter=createMelonArmsPainter(original,arms.current!);loaded=true;setReady(true);wake();
+        painter=createMelonArmsPainter(cleanGrip,raisedGrip,arms.current!,grips.current!);loaded=true;delete el.dataset.failed;setReady(true);wake();
       }).catch(()=>{if(!disposed)el.dataset.failed='true'}).finally(()=>{loading=false});
     };
     const observer=new ResizeObserver(resize);observer.observe(el);
@@ -99,8 +103,9 @@ export default function MelonEatingStage({src,surface,reviewFrame}:{src:string;s
         <g ref={actionLayer} opacity="0">
           <image href={lapPatchUrl} x="270" y="522" width="325" height="132" mask={`url(#${id}-erase)`}/>
           <path ref={mouth} opacity="0" d="M434 422L441 425 459 425 465 423 463 429 440 429Z" fill="#713b2a"/>
-          <g ref={fruit}>{birthday?<image href={birthdayCakeUrl} x="365" y="512" width="214" height="132" preserveAspectRatio="xMidYMax meet"/>:<image href={src} width="1672" height="940" mask={`url(#${id}-fruit)`}/>}</g>
           <foreignObject x={MELON_ARM_CANVAS.x} y={MELON_ARM_CANVAS.y} width={MELON_ARM_CANVAS.width} height={MELON_ARM_CANVAS.height}><canvas ref={arms} className="ip-upper-canvas" aria-hidden="true"/></foreignObject>
+          <g ref={fruit}>{birthday?<image href={birthdayCakeUrl} x="365" y="512" width="214" height="132" preserveAspectRatio="xMidYMax meet"/>:<image href={src} width="1672" height="940" mask={`url(#${id}-fruit)`}/>}</g>
+          <foreignObject x={MELON_ARM_CANVAS.x} y={MELON_ARM_CANVAS.y} width={MELON_ARM_CANVAS.width} height={MELON_ARM_CANVAS.height}><canvas ref={grips} className="ip-upper-canvas" aria-hidden="true"/></foreignObject>
         </g>
         {ready&&surfaceActive&&<path className="ip-hit" role="button" tabIndex={0} aria-label={birthday?'点击西瓜举起生日蛋糕':'点击西瓜吃西瓜'} d="M330 291L470 283 517 326 520 453 552 522 589 645 625 763 675 804 673 852 541 865 507 817 430 757 425 888 320 895 315 810 330 647 284 606 280 540 300 467 327 443Z" fill="transparent" onClick={()=>trigger.current()} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();trigger.current()}}}><title>{birthday?'点击人物，举起生日蛋糕向你致意':'点击西瓜，坐着吃两口西瓜；连续点击会依次播放'}</title></path>}
       </g>

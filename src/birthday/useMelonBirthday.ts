@@ -6,10 +6,11 @@ export function useMelonBirthday():boolean{
   // Kept separate from BirthdayCue's older ?bday= preview. This override is
   // compiled out of production, so a public URL cannot extend the one-day event.
   const preview=import.meta.env.DEV&&typeof window!=='undefined'
-    &&new URLSearchParams(window.location.search).get('melonBirthday')==='1';
-  const [active,setActive]=useState(()=>preview||isMelonBirthdayAt(Date.now()));
+    ?new URLSearchParams(window.location.search).get('melonBirthday'):null;
+  const forced=preview==='1'?true:preview==='0'?false:undefined;
+  const [active,setActive]=useState(()=>forced??isMelonBirthdayAt(Date.now()));
   useEffect(()=>{
-    if(preview){setActive(true);return}
+    if(forced!==undefined){setActive(forced);return}
     let timer:number|undefined;
     const refresh=()=>{
       window.clearTimeout(timer);
@@ -30,6 +31,6 @@ export function useMelonBirthday():boolean{
       document.removeEventListener('visibilitychange',refresh);
       window.removeEventListener('focus',refresh);
     };
-  },[preview]);
+  },[forced]);
   return active;
 }
