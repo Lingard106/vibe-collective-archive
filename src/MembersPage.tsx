@@ -8,6 +8,7 @@ import {prepareImage, profileImageSrc} from './media/image-loader';
 import {MemberArtworkContext} from './MemberArtworkContext';
 const AnimatedPortrait=lazy(()=>import('./world-preview/ImagePortraitStage'));
 const MelonEatingPortrait=lazy(()=>import('./world-preview/MelonEatingStage'));
+const JudefanPortrait=lazy(()=>import('./world-preview/JudefanPortraitStage'));
 
 type DbProfile={member_id:string;nickname:string;english_name:string;aliases:string;avatar:string;quote:string;bed:string;region:string;mbti:string;buffs:string;debuffs:string;stats:string};
 type EditableMember=Omit<MemberProfile,'hero'>;
@@ -39,7 +40,7 @@ export default function MembersPage({staticMembers}:{staticMembers:MemberProfile
  const m=members[visibleActive];
  const portrait=(surface:'background'|'cover')=>{
   const fallback=surface==='background'?<CrossfadeImage className="member-page-bg" src={profileImageSrc(m.hero)} style={{width:'100%',height:'100%',objectFit:'cover'}}/>:<Img className="mobile-profile-cover" src={m.hero} loading="eager" alt=""/>;
-  return renderArtwork?.(m,surface)??(m.id==='lingard'?<Suspense fallback={fallback}><AnimatedPortrait key={m.id+'-'+surface} src={profileImageSrc(m.hero)} surface={surface}/></Suspense>:m.id==='melon'?<Suspense fallback={fallback}><MelonEatingPortrait key={m.id+'-'+surface} src={profileImageSrc(m.hero)} surface={surface}/></Suspense>:fallback);
+  return renderArtwork?.(m,surface)??(m.id==='lingard'?<Suspense fallback={fallback}><AnimatedPortrait key={m.id+'-'+surface} src={profileImageSrc(m.hero)} surface={surface}/></Suspense>:m.id==='melon'?<Suspense fallback={fallback}><MelonEatingPortrait key={m.id+'-'+surface} src={profileImageSrc(m.hero)} surface={surface}/></Suspense>:m.id==='judefan'?<Suspense fallback={fallback}><JudefanPortrait key={m.id+'-'+surface} src={profileImageSrc(m.hero)} surface={surface}/></Suspense>:fallback);
  };
  const target=members[active];
  useEffect(()=>{

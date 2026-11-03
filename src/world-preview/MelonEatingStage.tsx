@@ -5,6 +5,7 @@ import raisedGripUrl from './assets/melon-raised-grip-v2.webp';
 import birthdayCakeUrl from './assets/melon-birthday-cake-2026.webp';
 import {useMelonBirthday} from '../birthday/useMelonBirthday';
 import {MELON_EAT_DURATION,melonEatingPose} from './melon-motion';
+import {MELON_BUBBLE_DOTS,melonBubbleDot} from './melon-bubble';
 import {MELON_ARM_PATHS,MELON_ARM_CANVAS,createMelonArmsPainter} from './melon-arms';
 import {prepareImage} from '../media/image-loader';
 import './image-portrait.css';
@@ -20,6 +21,7 @@ export default function MelonEatingStage({src,surface,reviewFrame}:{src:string;s
   const host=useRef<HTMLDivElement>(null),svg=useRef<SVGSVGElement>(null),scene=useRef<SVGGElement>(null);
   const actionLayer=useRef<SVGGElement>(null),fruit=useRef<SVGGElement>(null),arms=useRef<HTMLCanvasElement>(null),grips=useRef<HTMLCanvasElement>(null);
   const biteOne=useRef<SVGPathElement>(null),biteTwo=useRef<SVGPathElement>(null),mouth=useRef<SVGPathElement>(null);
+  const bubble=useRef<SVGGElement>(null),bubbleDots=useRef<(SVGPathElement|null)[]>([]);
   const trigger=useRef<()=>void>(()=>{});
   const [ready,setReady]=useState(false);
   const [surfaceActive,setSurfaceActive]=useState(false);
@@ -42,6 +44,12 @@ export default function MelonEatingStage({src,surface,reviewFrame}:{src:string;s
       actionLayer.current?.setAttribute('opacity',String(loaded&&enabled()?1:0));
       fruit.current?.setAttribute('transform',`translate(${handX} ${handY})`);
       painter?.(handX,handY);
+      bubble.current?.setAttribute('opacity',String(loaded&&enabled()?1:0));
+      MELON_BUBBLE_DOTS.forEach(({x,y},index)=>{
+        const dot=melonBubbleDot(reviewFrame??time,index,reduced.matches);
+        bubbleDots.current[index]?.setAttribute('transform',`translate(${x} ${y+dot.y})`);
+        bubbleDots.current[index]?.setAttribute('opacity',String(dot.opacity));
+      });
       const biteVisibility=age>=0&&age<=MELON_EAT_DURATION?1-ease((age-6.8)/.6):0;
       biteOne.current?.setAttribute('opacity',String(ease((age-2)/.12)*biteVisibility));
       biteTwo.current?.setAttribute('opacity',String(ease((age-3.5)/.12)*biteVisibility));
@@ -97,9 +105,16 @@ export default function MelonEatingStage({src,surface,reviewFrame}:{src:string;s
           <path ref={biteOne} opacity="0" d="M433 527H457V539H453V545H438V539H433Z" fill="black"/>
           <path ref={biteTwo} opacity="0" d="M459 528H482V540H478V546H464V541H459Z" fill="black"/>
         </mask>
+        <clipPath id={id+'-dots-erase'} clipPathUnits="userSpaceOnUse">{MELON_BUBBLE_DOTS.map(({x,y},index)=><rect key={index} x={x-3} y={y-3} width="17" height="18"/>)}</clipPath>
       </defs>
       <g ref={scene}>
         <image href={src} width="1672" height="940"/>
+        <g ref={bubble} opacity="0" pointerEvents="none" aria-hidden="true" data-melon-ellipsis="true">
+          {/* Borrow blank paper immediately below the old dots. The source
+              pixels, bubble border and full-resolution photograph stay intact. */}
+          <g clipPath={`url(#${id}-dots-erase)`}><image href={src} width="1672" height="940" transform="translate(0 -20)"/></g>
+          {MELON_BUBBLE_DOTS.map(({x,y},index)=><path key={index} ref={element=>{bubbleDots.current[index]=element}} data-melon-dot={index} d="M2 0H9L11 3V9L9 12H2L0 9V3Z" fill="#45414f" transform={`translate(${x} ${y})`}/>)}
+        </g>
         <g ref={actionLayer} opacity="0">
           <image href={lapPatchUrl} x="270" y="522" width="325" height="132" mask={`url(#${id}-erase)`}/>
           <path ref={mouth} opacity="0" d="M434 422L441 425 459 425 465 423 463 429 440 429Z" fill="#713b2a"/>
